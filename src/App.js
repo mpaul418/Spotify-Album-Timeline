@@ -1,120 +1,48 @@
-import { Chrono } from "react-chrono";
-import {
-  Timeline,
-  Events,
-  UrlButton,
-  ImageEvent,
-  TextEvent,
-  YouTubeEvent,
-} from '@merc/react-timeline';
+import { styled } from '@stitches/react';
 
 function App() {
+  // TODO remove this once hooked up to spotify
+  const sampleData = require('./sample_saved_albums.json');
 
-  // const items = [{
-  //   title: "May 1940",
-  //   cardTitle: "Dunkirk",
-  //   url: "http://www.history.com",
-  //   cardSubtitle:"Men of the British Expeditionary Force (BEF) wade out to..",
-  //   cardDetailedText: "Men of the British Expeditionary Force (BEF) wade out to..",
-  // },
-  // {
-  //   title: "June 1940",
-  //   cardTitle: "Dunkirk",
-  //   url: "http://www.history.com",
-  //   cardSubtitle:"Men of the British Expeditionary Force (BEF) wade out to..",
-  //   cardDetailedText: "Men of the British Expeditionary Force (BEF) wade out to..",
-  // },
-  // {
-  //   title: "May 1942",
-  //   cardTitle: "Dunkirk",
-  //   url: "http://www.history.com",
-  //   cardSubtitle:"Men of the British Expeditionary Force (BEF) wade out to..",
-  //   cardDetailedText: "Men of the British Expeditionary Force (BEF) wade out to..",
-  // }];
+  const Timeline = styled('div', {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  })
+
+  const Album = styled('div', {
+    // width: 600,
+    // height: 600,
+    // TODO 
+  })
+
+  const AlbumCover = styled('img', {
+    width: 150,
+    height: 150,
+    // TODO 
+  })
+
+  // TODO need to do lots of null checking on fields that may/may not exist??
+  // TODO add more styling/etc
+  const renderItems = () => {
+    return sampleData.items.map(item => {
+      const { added_at: addedDate, album } = item;
+      return (<Album key={album.id}>
+        <p>{album.name}</p>
+        <p>{album.artists[0].name /* TODO need to parse through all the artists */}</p>
+        <p>Released on: {album.release_date}</p>
+        <p>Added on: {addedDate}</p>
+        <a href={album.external_urls.spotify} target="_blank" rel="noreferrer">
+          <AlbumCover src={album.images[1].url /* TODO need to have this parse the correct image */} />
+        </a>
+      </Album>)
+    })
+  }
 
   return (
-    <div className="App">
-      {/* <Chrono items={items} /> */}
-      <Timeline opts={{ layout: 'inline-evts' }}>
-        <Events>
-          <TextEvent date="1/1/19" text="**Markdown** is *supported*" />
-
-          <TextEvent
-            date="1/2/19"
-            text="Events alternate by default (given enough space in the browser)"
-          />
-
-          <TextEvent
-            date="June 2019"
-            text="June 2019"
-          >
-            <UrlButton href="https://unsplash.com/search/photos/undersea">
-              View more undersea photos
-            </UrlButton>
-            <Timeline>
-              <Events>
-                <ImageEvent
-                  date="4/13/19"
-                  text="You can embed images..."
-                  src="https://res.cloudinary.com/dovoq8jou/image/upload/v1564772194/jellyfish.jpg"
-                  alt="jellyfish swimming"
-                  credit="Photo by [@tavi004](https://unsplash.com/@tavi004)"
-                />
-                <ImageEvent
-                  date="4/14/19"
-                  text="You can embed images..."
-                  src="https://res.cloudinary.com/dovoq8jou/image/upload/v1564772194/jellyfish.jpg"
-                  alt="jellyfish swimming"
-                  credit="Photo by [@tavi004](https://unsplash.com/@tavi004)"
-                />
-                <ImageEvent
-                  date="4/14/19"
-                  text="You can embed images..."
-                  src="https://res.cloudinary.com/dovoq8jou/image/upload/v1564772194/jellyfish.jpg"
-                  alt="jellyfish swimming"
-                  credit="Photo by [@tavi004](https://unsplash.com/@tavi004)"
-                />
-                <ImageEvent
-                  date="4/14/19"
-                  text="You can embed images..."
-                  src="https://res.cloudinary.com/dovoq8jou/image/upload/v1564772194/jellyfish.jpg"
-                  alt="jellyfish swimming"
-                  credit="Photo by [@tavi004](https://unsplash.com/@tavi004)"
-                />
-                <ImageEvent
-                  date="4/14/19"
-                  text="You can embed images..."
-                  src="https://res.cloudinary.com/dovoq8jou/image/upload/v1564772194/jellyfish.jpg"
-                  alt="jellyfish swimming"
-                  credit="Photo by [@tavi004](https://unsplash.com/@tavi004)"
-                />
-                <ImageEvent
-                  date="4/14/19"
-                  text="You can embed images..."
-                  src="https://res.cloudinary.com/dovoq8jou/image/upload/v1564772194/jellyfish.jpg"
-                  alt="jellyfish swimming"
-                  credit="Photo by [@tavi004](https://unsplash.com/@tavi004)"
-                />
-              </Events>
-            </Timeline>
-          </TextEvent>
-
-          <YouTubeEvent
-            date="6/18/19"
-            id="6UnRHtwHGSE"
-            name="General Tso's Chicken recipe"
-            text="... and YouTube videos!"
-          />
-
-          <YouTubeEvent
-            date="1/19/19"
-            id="6UnRHtwHGSE"
-            name="General Tso's Chicken recipe"
-            text="... and YouTube videos!"
-          />
-        </Events>
-      </Timeline>
-    </div >
+    <Timeline>
+      {renderItems()}
+    </Timeline >
   );
 }
 
