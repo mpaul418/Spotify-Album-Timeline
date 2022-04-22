@@ -1,6 +1,5 @@
 import { TimelineContainer, Day, BulletPoint, AlbumCover } from './styles';
 
-// TODO rename this
 export const Timeline = () => {
   // TODO remove this once hooked up to spotify
   const sampleData = require('../sample_saved_albums.json');
@@ -24,6 +23,7 @@ export const Timeline = () => {
       // TODO need bullet point on it if album exists on that date
       const albumsOnDay = [];
       while (currentAlbumIndex >= 0 && dateAtIndex(currentAlbumIndex) <= currentDate) {
+        // TODO need to do null checking on fields that may/may not exist??
         const { id, external_urls, images, name } = sampleItems[currentAlbumIndex].album;
         albumsOnDay.push(
           <a href={external_urls.spotify} target='_blank' rel='noreferrer' key={id} style={{ height: 100 }}>
@@ -37,6 +37,12 @@ export const Timeline = () => {
             {/* TODO remove title from image once hover stuff is working? */}
           </a>
         );
+        //  <AlbumInfo>
+        //    <span>{album.name}</span>
+        //    <span>{album.artists[0].name /* TODO need to parse through all the artists */}</span>
+        //    <span>Released on: {album.release_date}</span>
+        //    <span>Added on: {addedDate}</span>
+        //  </AlbumInfo>
 
         currentAlbumIndex--;
       }
@@ -74,33 +80,5 @@ export const Timeline = () => {
   //   paddingTop: 16,
   // })
 
-  // // TODO need to do lots of null checking on fields that may/may not exist??
-  // // TODO add more styling/etc
-  // const renderItems = () => {
-  //   return sampleData.items.map(item => {
-  //     const { added_at, album } = item;
-  //     const addedDate = added_at.split('T')[0];
-  //     return (<Album key={album.id}>
-  //       <a href={album.external_urls.spotify} target="_blank" rel="noreferrer">
-  //         <AlbumCover src={album.images[1].url /* TODO need to have this parse the correctly sized image */} />
-  //       </a>
-  //       <AlbumInfo>
-  //         <span>{album.name}</span>
-  //         <span>{album.artists[0].name /* TODO need to parse through all the artists */}</span>
-  //         <span>Released on: {album.release_date}</span>
-  //         <span>Added on: {addedDate}</span>
-  //       </AlbumInfo>
-
-  //     </Album>)
-  //   })
-  // }
-
-  return (
-    <TimelineContainer>
-      {renderTimeline()}
-      {/* <AlbumList>
-        {renderItems()}
-      </AlbumList> */}
-    </TimelineContainer>
-  );
+  return <TimelineContainer>{renderTimeline()}</TimelineContainer>;
 };
