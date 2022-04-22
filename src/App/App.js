@@ -1,28 +1,41 @@
-import { styled } from '@stitches/react';
+import { Timeline, Day, BulletPoint, AlbumCover } from './styles';
 
-function App() {
+// TODO rename this
+export const App = () => {
   // TODO remove this once hooked up to spotify
-  const sampleData = require('./sample_saved_albums.json');
+  const sampleData = require('../sample_saved_albums.json');
   const sampleItems = sampleData.items;
 
-  const Timeline = styled('div', {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-  })
+  const dateAtIndex = (index) => new Date(sampleItems.at(index).added_at.split('T')[0])
 
   const renderTimeline = () => {
-    const earliestAddDate = new Date(sampleItems.at(-1).added_at);
-    const latestAddDate = new Date(sampleItems[0].added_at);
-    earliestAddDate.setHours(0, 0, 0, 0);
-    latestAddDate.setHours(0, 0, 0, 0);
+    const earliestAddDate = dateAtIndex(-1);
+    const latestAddDate = dateAtIndex(0);
 
     const timelineDays = [];
+    let currentAlbumIndex = sampleItems.length - 1;
 
+    // TODO may want to start at index 0 instead of from the end
     for (let currentDate = earliestAddDate; currentDate.getTime() <= latestAddDate.getTime(); currentDate.setDate(currentDate.getDate() + 1)) {
-      // TODO instead of <p>, return ~2-5 px line to represent the day (will need bullet point on it if album exists on that date)
-      timelineDays.push(<p key={currentDate.getTime()}>{currentDate.toString()}</p>);
-      // TODO need to be looping through the data json at the same time, chekcing if any albums match current date
+      // TODO need bullet point on it if album exists on that date
+      const albumsOnDay = []
+      while (currentAlbumIndex >= 0 && dateAtIndex(currentAlbumIndex) <= currentDate) {
+        const { id, external_urls, images, name } = sampleItems[currentAlbumIndex].album;
+        albumsOnDay.push(<a href={external_urls.spotify} target="_blank" rel="noreferrer" key={id} style={{ height: 100 }}>
+          <AlbumCover src={images[1].url /* TODO need to have this parse the correctly sized image */} title={name} />
+          {/* TODO remove title from image once hover stuff is working? */}
+        </a>)
+
+        currentAlbumIndex--;
+      }
+
+      const hasAlbums = albumsOnDay.length > 0;
+
+      timelineDays.push(
+        <Day key={currentDate.getTime()} hasAlbums={hasAlbums}>
+          {hasAlbums && <BulletPoint />}
+          {albumsOnDay}
+        </Day>);
     }
 
     return timelineDays;
@@ -48,11 +61,7 @@ function App() {
   //   paddingTop: 16,
   // })
 
-  // const AlbumCover = styled('img', {
-  //   width: 150,
-  //   height: 150,
-  //   paddingRight: 24,
-  // })
+
 
   // // TODO need to do lots of null checking on fields that may/may not exist??
   // // TODO add more styling/etc
@@ -84,5 +93,3 @@ function App() {
     </Timeline>
   );
 }
-
-export default App;
