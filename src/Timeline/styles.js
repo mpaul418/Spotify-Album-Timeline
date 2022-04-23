@@ -3,23 +3,16 @@ import { styled } from '@stitches/react';
 export const TimelineContainer = styled('div', {
   display: 'flex',
   flexDirection: 'column',
-  justifyContent: 'center',
 });
 
 export const Day = styled('div', {
   display: 'flex',
   alignItems: 'center',
-  height: 25, // TODO may want to change this depending how it looks with larger dataset
+  flexWrap: 'wrap',
+  padding: '5px 0',
+  minHeight: 15, // actual min height is 25px, top/bottom padding adds 5px each
   borderLeft: '3px solid black',
   marginLeft: 10,
-
-  variants: {
-    hasAlbums: {
-      true: {
-        height: 110, // TODO may want to change this depending how it looks with larger dataset
-      },
-    },
-  },
 });
 
 export const BulletPoint = styled('div', {
@@ -28,12 +21,38 @@ export const BulletPoint = styled('div', {
   backgroundColor: 'black',
   borderRadius: '50%',
   position: 'relative',
-  // top: 42.5, // 1/2 of <Day> height, - 1/2 of <BulletPoint> height
   left: -9, // 0 - 1/2 of <Day> left border - 1/2 of <BulletPoint> width
+  marginRight: -15,
+});
+
+export const Album = styled('div', {
+  position: 'relative',
+
+  '&:hover > div': {
+    visibility: 'visible',
+    opacity: 1,
+  },
+});
+
+export const AlbumHoverInfo = styled('div', {
+  visibility: 'hidden',
+  display: 'flex',
+  flexDirection: 'column',
+  border: '1px solid black',
+  borderRadius: '8px',
+  backgroundColor: 'white',
+  padding: 6,
+  marginLeft: 6,
+  width: 250,
+  minHeight: 100,
+  position: 'absolute',
+  zIndex: 1,
+  opacity: 0,
+  transition: 'opacity .3s ease',
 });
 
 export const AlbumCover = styled('img', {
   width: 100,
   height: 100,
-  paddingLeft: 12,
+  paddingLeft: 15,
 });
