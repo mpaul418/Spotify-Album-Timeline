@@ -1,4 +1,4 @@
-import { TimelineContainer, Day, BulletPoint, Album, AlbumHoverInfo, AlbumCover } from './styles';
+import { TimelineContainer, NewMonth, Day, BulletPoint, Album, AlbumHoverInfo, AlbumCover } from './styles';
 
 export const Timeline = () => {
   // TODO remove this once hooked up to spotify
@@ -33,13 +33,13 @@ export const Timeline = () => {
     let currentAlbumIndex = sampleItems.length - 1;
 
     // TODO may want to start at index 0 instead of from the end
+    // TODO have a month marker at the very top to show where we are starting
     // TODO additionally, may want to do infinite scrolling, getting like 50 albums at a time or something
     for (
       let currentDate = earliestAddDate;
       compareDates(currentDate, latestAddDate) <= 0;
       currentDate.setDate(currentDate.getDate() + 1)
     ) {
-      // TODO print marker at start of each month
       const albumsOnDay = [];
 
       // TODO can this be moved to its own function?
@@ -62,16 +62,23 @@ export const Timeline = () => {
               />
             </a>
             <AlbumHoverInfo>
-              {/* TODO styling on the different info sections */}
-              <span>{name}</span>
-              <span>{artists[0].name /* TODO need to parse through all the artists */}</span>
-              <span>Release Date: {releaseDate.toLocaleDateString()}</span>
+              <b>{name}</b>
+              <span>{artists.map(artist => artist.name).join(', ')}</span>
+              <span style={{ marginTop: 15 }}>Release Date: {releaseDate.toLocaleDateString()}</span>
               <span>Added on: {addDateAt(currentAlbumIndex).toLocaleDateString()}</span>
             </AlbumHoverInfo>
           </Album>
         );
 
         currentAlbumIndex--;
+      }
+
+      if (currentDate.getDate() === 1) {
+        timelineDays.push(
+          <NewMonth key={currentDate.toLocaleDateString()}>
+            {currentDate.toLocaleString('default', { month: 'long' }) + ' ' + currentDate.getFullYear()}
+          </NewMonth>
+        );
       }
 
       timelineDays.push(

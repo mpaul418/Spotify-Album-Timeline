@@ -5,6 +5,16 @@ export const TimelineContainer = styled('div', {
   flexDirection: 'column',
 });
 
+export const NewMonth = styled('b', {
+  borderLeft: '3px solid black',
+  borderTop: '2px solid black',
+  marginLeft: 10,
+  padding: '5px 15px',
+  width: 'fit-content',
+  fontSize: 18,
+  fontFamily: 'Gotham, Arial, Helvetica, sans-serif',
+});
+
 export const Day = styled('div', {
   display: 'flex',
   alignItems: 'center',
@@ -38,6 +48,7 @@ export const AlbumHoverInfo = styled('div', {
   visibility: 'hidden',
   display: 'flex',
   flexDirection: 'column',
+  justifyContent: 'space-between',
   border: '1px solid black',
   borderRadius: '8px',
   backgroundColor: 'white',
@@ -49,6 +60,7 @@ export const AlbumHoverInfo = styled('div', {
   zIndex: 1,
   opacity: 0,
   transition: 'opacity .3s ease',
+  fontFamily: 'Gotham Light, Arial, Helvetica, sans-serif',
 });
 
 export const AlbumCover = styled('img', {
