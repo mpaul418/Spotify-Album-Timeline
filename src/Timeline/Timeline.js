@@ -5,7 +5,7 @@ export const Timeline = () => {
   const sampleData = require('../sample_saved_albums.json');
   const sampleItems = sampleData.items;
 
-  const addDateAt = index => new Date(sampleItems.at(index).added_at);
+  const addedDateAt = index => new Date(sampleItems.at(index).added_at);
 
   // Needed so we can compare month/day/year without checking time as well (so 2 dates on the same day will count as equal)
   const compareDates = (date1, date2) => {
@@ -26,31 +26,24 @@ export const Timeline = () => {
   };
 
   const renderTimeline = () => {
-    const earliestAddDate = addDateAt(-1);
-    const latestAddDate = addDateAt(0);
+    const earliestAddDate = addedDateAt(-1);
+    earliestAddDate.setDate(1); // Set date to the first of the month
+    const latestAddDate = addedDateAt(0);
 
     const timelineDays = [];
     let currentAlbumIndex = sampleItems.length - 1;
 
-    // TODO may want to start at index 0 instead of from the end
-    // TODO have a month marker at the very top to show where we are starting
-    // TODO additionally, may want to do infinite scrolling, getting like 50 albums at a time or something
-    for (
-      let currentDate = earliestAddDate;
-      compareDates(currentDate, latestAddDate) <= 0;
-      currentDate.setDate(currentDate.getDate() + 1)
-    ) {
-      const albumsOnDay = [];
+    const getAlbumsOnDate = currentDate => {
+      const albumsOnDate = [];
 
-      // TODO can this be moved to its own function?
-      while (currentAlbumIndex >= 0 && compareDates(addDateAt(currentAlbumIndex), currentDate) === 0) {
+      while (currentAlbumIndex >= 0 && compareDates(addedDateAt(currentAlbumIndex), currentDate) === 0) {
         // TODO need to do null checking on fields that may/may not exist??
         const { id, external_urls, images, name, artists, release_date } = sampleItems[currentAlbumIndex].album;
 
         const releaseDate = new Date(release_date);
-        releaseDate.setMinutes(releaseDate.getMinutes() + releaseDate.getTimezoneOffset());
+        releaseDate.setMinutes(releaseDate.getMinutes() + releaseDate.getTimezoneOffset()); // Account for time zone to ensure displayed date doesn't get offset by 1
 
-        albumsOnDay.push(
+        albumsOnDate.push(
           <Album key={id}>
             <a href={external_urls.spotify} target='_blank' rel='noreferrer'>
               <AlbumCover
@@ -65,7 +58,7 @@ export const Timeline = () => {
               <b>{name}</b>
               <span>{artists.map(artist => artist.name).join(', ')}</span>
               <span style={{ marginTop: 15 }}>Release Date: {releaseDate.toLocaleDateString()}</span>
-              <span>Added on: {addDateAt(currentAlbumIndex).toLocaleDateString()}</span>
+              <span>Added on: {addedDateAt(currentAlbumIndex).toLocaleDateString()}</span>
             </AlbumHoverInfo>
           </Album>
         );
@@ -73,6 +66,19 @@ export const Timeline = () => {
         currentAlbumIndex--;
       }
 
+      return albumsOnDate;
+    };
+
+    // TODO may want to start at index 0 instead of from the end
+    // TODO additionally, may want to do infinite scrolling, getting like 50 albums at a time or something
+    for (
+      let currentDate = earliestAddDate;
+      compareDates(currentDate, latestAddDate) <= 0;
+      currentDate.setDate(currentDate.getDate() + 1)
+    ) {
+      const albumsOnDate = getAlbumsOnDate(currentDate);
+
+      // Print Month + Year if we are at the start of a new month
       if (currentDate.getDate() === 1) {
         timelineDays.push(
           <NewMonth key={currentDate.toLocaleDateString()}>
@@ -81,10 +87,11 @@ export const Timeline = () => {
         );
       }
 
+      // Add the day, whether there are albums or not
       timelineDays.push(
         <Day key={currentDate.getTime()}>
-          {albumsOnDay.length > 0 && <BulletPoint />}
-          {albumsOnDay}
+          {albumsOnDate.length > 0 && <BulletPoint />}
+          {albumsOnDate}
         </Day>
       );
     }
