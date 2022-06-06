@@ -25,18 +25,24 @@ export const Timeline = () => {
     return 0;
   };
 
-  const renderTimeline = () => {
-    const earliestAddDate = addedDateAt(-1);
-    earliestAddDate.setDate(1); // Set date to the first of the month
-    const latestAddDate = addedDateAt(0);
+  const isLastDayOfMonth = date => {
+    return date.getDate() === new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  };
 
+  const renderTimeline = () => {
     const timelineDays = [];
-    let currentAlbumIndex = sampleItems.length - 1;
+    let currentAlbumIndex = 0;
+
+    const latestAddDate = addedDateAt(0);
+    const endOfLatestMonth = new Date(latestAddDate.getFullYear(), latestAddDate.getMonth() + 1, 0); // Start at the end of the latest month so that we get the month label
 
     const getAlbumsOnDate = currentDate => {
       const albumsOnDate = [];
 
-      while (currentAlbumIndex >= 0 && compareDates(addedDateAt(currentAlbumIndex), currentDate) === 0) {
+      while (
+        currentAlbumIndex < sampleItems.length &&
+        compareDates(addedDateAt(currentAlbumIndex), currentDate) === 0
+      ) {
         // TODO need to do null checking on fields that may/may not exist??
         const { id, external_urls, images, name, artists, release_date } = sampleItems[currentAlbumIndex].album;
 
@@ -63,23 +69,22 @@ export const Timeline = () => {
           </Album>
         );
 
-        currentAlbumIndex--;
+        currentAlbumIndex++;
       }
 
       return albumsOnDate;
     };
 
-    // TODO may want to start at index 0 instead of from the end
-    // TODO additionally, may want to do infinite scrolling, getting like 50 albums at a time or something
+    // TODO may want to do infinite scrolling, getting like 50 albums at a time or something
     for (
-      let currentDate = earliestAddDate;
-      compareDates(currentDate, latestAddDate) <= 0;
-      currentDate.setDate(currentDate.getDate() + 1)
+      let currentDate = endOfLatestMonth;
+      currentAlbumIndex < sampleItems.length; // TODO update this once hooked up to spotify
+      currentDate.setDate(currentDate.getDate() - 1)
     ) {
       const albumsOnDate = getAlbumsOnDate(currentDate);
 
-      // Print Month + Year if we are at the start of a new month
-      if (currentDate.getDate() === 1) {
+      // Print Month + Year if we are at the end of a month
+      if (isLastDayOfMonth(currentDate)) {
         timelineDays.push(
           <NewMonth key={currentDate.toLocaleDateString()}>
             {currentDate.toLocaleString('default', { month: 'long' }) + ' ' + currentDate.getFullYear()}
