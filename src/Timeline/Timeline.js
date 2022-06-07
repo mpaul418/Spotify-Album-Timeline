@@ -1,24 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { TimelineContainer, NewMonth, Day, BulletPoint, Album, AlbumHoverInfo, AlbumCover } from './styles';
-import { SpotifyApiContext } from 'react-spotify-api';
+import { SpotifyApiContext, UserAlbums } from 'react-spotify-api';
 import Cookies from 'js-cookie';
 
 import { SpotifyAuth, Scopes } from 'react-spotify-auth';
 import 'react-spotify-auth/dist/index.css';
 
 export const Timeline = () => {
-  // TODO remove this once hooked up to spotify
-  const sampleData = require('../sample_saved_albums.json');
-  const sampleItems = sampleData.items;
-
   const [spotifyAuthToken, setSpotifyAuthToken] = useState();
 
   useEffect(() => {
     setSpotifyAuthToken(Cookies.get('spotifyAuthToken'));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [Cookies.get('spotifyAuthToken')]);
-
-  const addedDateAt = index => new Date(sampleItems.at(index).added_at);
 
   // Needed so we can compare month/day/year without checking time as well (so 2 dates on the same day will count as equal)
   const compareDates = (date1, date2) => {
@@ -42,9 +36,12 @@ export const Timeline = () => {
     return date.getDate() === new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
   };
 
-  const renderTimeline = () => {
+  const renderTimeline = (data, loadMoreData) => {
+    const items = data.items;
     const timelineDays = [];
     let currentAlbumIndex = 0;
+
+    const addedDateAt = index => new Date(items.at(index).added_at);
 
     const latestAddDate = addedDateAt(0);
     const endOfLatestMonth = new Date(latestAddDate.getFullYear(), latestAddDate.getMonth() + 1, 0); // Start at the end of the latest month so that we get the month label
@@ -52,12 +49,9 @@ export const Timeline = () => {
     const getAlbumsOnDate = currentDate => {
       const albumsOnDate = [];
 
-      while (
-        currentAlbumIndex < sampleItems.length &&
-        compareDates(addedDateAt(currentAlbumIndex), currentDate) === 0
-      ) {
+      while (currentAlbumIndex < items.length && compareDates(addedDateAt(currentAlbumIndex), currentDate) === 0) {
         // TODO need to do null checking on fields that may/may not exist??
-        const { id, external_urls, images, name, artists, release_date } = sampleItems[currentAlbumIndex].album;
+        const { id, external_urls, images, name, artists, release_date } = items[currentAlbumIndex].album;
 
         const releaseDate = new Date(release_date);
         releaseDate.setMinutes(releaseDate.getMinutes() + releaseDate.getTimezoneOffset()); // Account for time zone to ensure displayed date doesn't get offset by 1
@@ -67,8 +61,7 @@ export const Timeline = () => {
             <a href={external_urls.spotify} target='_blank' rel='noreferrer'>
               <AlbumCover
                 src={
-                  images[1].url
-                  /* TODO need to have this parse the correctly sized image */
+                  images[1].url // Spotify's 300x300px image of the album; images[0] is 640x640 and images[2] is 64x64
                 }
                 title={name}
               />
@@ -91,7 +84,7 @@ export const Timeline = () => {
     // TODO may want to do infinite scrolling, getting like 50 albums at a time or something
     for (
       let currentDate = endOfLatestMonth;
-      currentAlbumIndex < sampleItems.length; // TODO update this once hooked up to spotify
+      currentAlbumIndex < items.length;
       currentDate.setDate(currentDate.getDate() - 1)
     ) {
       const albumsOnDate = getAlbumsOnDate(currentDate);
@@ -119,9 +112,7 @@ export const Timeline = () => {
 
   return spotifyAuthToken ? (
     <SpotifyApiContext.Provider value={spotifyAuthToken}>
-      {/* Your Spotify Code here */}
-      {/* TODO remove <p> and style logout button */}
-      <p>You are authorized with token: {spotifyAuthToken}</p>
+      {/* TODO style logout button */}
       <button
         onClick={() => {
           Cookies.remove('spotifyAuthToken');
@@ -130,7 +121,14 @@ export const Timeline = () => {
       >
         Logout
       </button>
-      <TimelineContainer>{renderTimeline()}</TimelineContainer>
+      <UserAlbums options={{ limit: 50 }}>
+        {({ data, loading, error, loadMoreData }) => {
+          // TODO refactor files to put the timeline stuff in its own file; ex. <Timeline {...userAlbumProps}/>
+          if (data) {
+            return <TimelineContainer>{renderTimeline(data)}</TimelineContainer>;
+          } else return <p>No data...</p>; // TODO improve
+        }}
+      </UserAlbums>
     </SpotifyApiContext.Provider>
   ) : (
     // Display the login page
