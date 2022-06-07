@@ -20,7 +20,7 @@ export const Day = styled('div', {
   alignItems: 'center',
   flexWrap: 'wrap',
   padding: '5px 0',
-  minHeight: 15, // actual min height is 25px, top/bottom padding adds 5px each
+  minHeight: 10, // actual min height is 20px, top/bottom padding adds 5px each
   borderLeft: '3px solid black',
   marginLeft: 10,
 });
