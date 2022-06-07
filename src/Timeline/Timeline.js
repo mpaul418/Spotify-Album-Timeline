@@ -1,141 +1,119 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { TimelineContainer, NewMonth, Day, BulletPoint, Album, AlbumHoverInfo, AlbumCover } from './styles';
-import { SpotifyApiContext, UserAlbums } from 'react-spotify-api';
-import Cookies from 'js-cookie';
+import useInfiniteScroll from 'react-infinite-scroll-hook';
 
-import { SpotifyAuth, Scopes } from 'react-spotify-auth';
-import 'react-spotify-auth/dist/index.css';
+// Needed so we can compare month/day/year without checking time as well (so 2 dates on the same day will count as equal)
+const compareDates = (date1, date2) => {
+  const [day1, month1, year1] = [date1.getDate(), date1.getMonth(), date1.getFullYear()];
+  const [day2, month2, year2] = [date2.getDate(), date2.getMonth(), date2.getFullYear()];
 
-export const Timeline = () => {
-  const [spotifyAuthToken, setSpotifyAuthToken] = useState();
+  if (year1 !== year2) {
+    return year1 < year2 ? -1 : 1;
+  }
+  if (month1 !== month2) {
+    return month1 < month2 ? -1 : 1;
+  }
+  if (day1 !== day2) {
+    return day1 < day2 ? -1 : 1;
+  }
 
-  useEffect(() => {
-    setSpotifyAuthToken(Cookies.get('spotifyAuthToken'));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [Cookies.get('spotifyAuthToken')]);
+  return 0;
+};
 
-  // Needed so we can compare month/day/year without checking time as well (so 2 dates on the same day will count as equal)
-  const compareDates = (date1, date2) => {
-    const [day1, month1, year1] = [date1.getDate(), date1.getMonth(), date1.getFullYear()];
-    const [day2, month2, year2] = [date2.getDate(), date2.getMonth(), date2.getFullYear()];
+const isLastDayOfMonth = date => {
+  return date.getDate() === new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+};
 
-    if (year1 !== year2) {
-      return year1 < year2 ? -1 : 1;
+export const Timeline = ({ data, loading, error, loadMoreData }) => {
+  const [sentryRef] = useInfiniteScroll({
+    loading,
+    hasNextPage: data?.next,
+    onLoadMore: loadMoreData,
+    disabled: !!error,
+    rootMargin: '0px 0px 750px 0px',
+  });
+
+  if (!data) {
+    // TODO improve this
+    return <p>Temp - loading...</p>;
+  }
+
+  const { items, next } = data;
+  const timelineDays = [];
+  let currentAlbumIndex = 0;
+
+  const addedDateAt = index => new Date(items.at(index).added_at);
+
+  const latestAddDate = addedDateAt(0);
+  const endOfLatestMonth = new Date(latestAddDate.getFullYear(), latestAddDate.getMonth() + 1, 0); // Start at the end of the latest month so that we get the month label
+
+  // Function to get all of the albums added on a given date
+  const getAlbumsOnDate = currentDate => {
+    const albumsOnDate = [];
+
+    while (currentAlbumIndex < items.length && compareDates(addedDateAt(currentAlbumIndex), currentDate) === 0) {
+      const { id, external_urls, images, name, artists, release_date } = items[currentAlbumIndex].album;
+
+      const releaseDate = new Date(release_date);
+      releaseDate.setMinutes(releaseDate.getMinutes() + releaseDate.getTimezoneOffset()); // Account for time zone to ensure displayed date doesn't get offset by 1
+
+      albumsOnDate.push(
+        <Album key={id}>
+          <a href={external_urls.spotify} target='_blank' rel='noreferrer'>
+            <AlbumCover
+              src={
+                images[1].url // Spotify's 300x300px image of the album; images[0] is 640x640 and images[2] is 64x64
+              }
+              title={name}
+            />
+          </a>
+          <AlbumHoverInfo>
+            <b>{name}</b>
+            <span>{artists.map(artist => artist.name).join(', ')}</span>
+            <span style={{ marginTop: 15 }}>Release Date: {releaseDate.toLocaleDateString()}</span>
+            <span>Added on: {addedDateAt(currentAlbumIndex).toLocaleDateString()}</span>
+          </AlbumHoverInfo>
+        </Album>
+      );
+
+      currentAlbumIndex++;
     }
-    if (month1 !== month2) {
-      return month1 < month2 ? -1 : 1;
-    }
-    if (day1 !== day2) {
-      return day1 < day2 ? -1 : 1;
-    }
 
-    return 0;
+    return albumsOnDate;
   };
 
-  const isLastDayOfMonth = date => {
-    return date.getDate() === new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-  };
+  // Assemble the timeline one day at a time, adding month dividers in between months
+  for (
+    let currentDate = endOfLatestMonth;
+    currentAlbumIndex < items.length;
+    currentDate.setDate(currentDate.getDate() - 1)
+  ) {
+    const albumsOnDate = getAlbumsOnDate(currentDate);
 
-  const renderTimeline = (data, loadMoreData) => {
-    const items = data.items;
-    const timelineDays = [];
-    let currentAlbumIndex = 0;
-
-    const addedDateAt = index => new Date(items.at(index).added_at);
-
-    const latestAddDate = addedDateAt(0);
-    const endOfLatestMonth = new Date(latestAddDate.getFullYear(), latestAddDate.getMonth() + 1, 0); // Start at the end of the latest month so that we get the month label
-
-    const getAlbumsOnDate = currentDate => {
-      const albumsOnDate = [];
-
-      while (currentAlbumIndex < items.length && compareDates(addedDateAt(currentAlbumIndex), currentDate) === 0) {
-        // TODO need to do null checking on fields that may/may not exist??
-        const { id, external_urls, images, name, artists, release_date } = items[currentAlbumIndex].album;
-
-        const releaseDate = new Date(release_date);
-        releaseDate.setMinutes(releaseDate.getMinutes() + releaseDate.getTimezoneOffset()); // Account for time zone to ensure displayed date doesn't get offset by 1
-
-        albumsOnDate.push(
-          <Album key={id}>
-            <a href={external_urls.spotify} target='_blank' rel='noreferrer'>
-              <AlbumCover
-                src={
-                  images[1].url // Spotify's 300x300px image of the album; images[0] is 640x640 and images[2] is 64x64
-                }
-                title={name}
-              />
-            </a>
-            <AlbumHoverInfo>
-              <b>{name}</b>
-              <span>{artists.map(artist => artist.name).join(', ')}</span>
-              <span style={{ marginTop: 15 }}>Release Date: {releaseDate.toLocaleDateString()}</span>
-              <span>Added on: {addedDateAt(currentAlbumIndex).toLocaleDateString()}</span>
-            </AlbumHoverInfo>
-          </Album>
-        );
-
-        currentAlbumIndex++;
-      }
-
-      return albumsOnDate;
-    };
-
-    // TODO may want to do infinite scrolling, getting like 50 albums at a time or something
-    for (
-      let currentDate = endOfLatestMonth;
-      currentAlbumIndex < items.length;
-      currentDate.setDate(currentDate.getDate() - 1)
-    ) {
-      const albumsOnDate = getAlbumsOnDate(currentDate);
-
-      // Print Month + Year if we are at the end of a month
-      if (isLastDayOfMonth(currentDate)) {
-        timelineDays.push(
-          <NewMonth key={currentDate.toLocaleDateString()}>
-            {currentDate.toLocaleString('default', { month: 'long' }) + ' ' + currentDate.getFullYear()}
-          </NewMonth>
-        );
-      }
-
-      // Add the day, whether there are albums or not
+    // Print Month + Year if we are at the end of a month
+    if (isLastDayOfMonth(currentDate)) {
       timelineDays.push(
-        <Day key={currentDate.getTime()}>
-          {albumsOnDate.length > 0 && <BulletPoint />}
-          {albumsOnDate}
-        </Day>
+        <NewMonth key={currentDate.toLocaleDateString()}>
+          {currentDate.toLocaleString('default', { month: 'long' }) + ' ' + currentDate.getFullYear()}
+        </NewMonth>
       );
     }
 
-    return timelineDays;
-  };
+    // Add the day, whether there are albums or not
+    timelineDays.push(
+      <Day key={currentDate.getTime()}>
+        {albumsOnDate.length > 0 && <BulletPoint />}
+        {albumsOnDate}
+      </Day>
+    );
+  }
 
-  return spotifyAuthToken ? (
-    <SpotifyApiContext.Provider value={spotifyAuthToken}>
-      {/* TODO style logout button */}
-      <button
-        onClick={() => {
-          Cookies.remove('spotifyAuthToken');
-          window.location = '/';
-        }}
-      >
-        Logout
-      </button>
-      <UserAlbums options={{ limit: 50 }}>
-        {({ data, loading, error, loadMoreData }) => {
-          // TODO refactor files to put the timeline stuff in its own file; ex. <Timeline {...userAlbumProps}/>
-          if (data) {
-            return <TimelineContainer>{renderTimeline(data)}</TimelineContainer>;
-          } else return <p>No data...</p>; // TODO improve
-        }}
-      </UserAlbums>
-    </SpotifyApiContext.Provider>
-  ) : (
-    // Display the login page
-    <SpotifyAuth
-      redirectUri='http://localhost:3000/callback'
-      clientID='454b032f839c4ce7adccd951bcd5163f'
-      scopes={[Scopes.userLibraryRead]} // either style will work
-    />
+  return (
+    <TimelineContainer>
+      {timelineDays}
+      {error && <p>There was an error :(</p>} {/* TODO Needs styling */}
+      {(loading || next) && <p ref={sentryRef}>Loading...</p>}{' '}
+      {/* TODO Infinite loader needs styling and also logic changes: what to do if there is an error? if all data is loaded (no data.next)? */}
+    </TimelineContainer>
   );
 };
