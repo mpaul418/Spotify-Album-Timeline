@@ -5,9 +5,12 @@
   "main": "src/index.js",
   "dependencies": {
     "@stitches/react": "^1.2.7",
+    "js-cookie": "^3.0.1",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-scripts": "5.0.0",
+    "react-spotify-api": "^3.0.0",
+    "react-spotify-auth": "^1.4.3",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

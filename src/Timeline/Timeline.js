@@ -1,9 +1,22 @@
+import React, { useState, useEffect } from 'react';
 import { TimelineContainer, NewMonth, Day, BulletPoint, Album, AlbumHoverInfo, AlbumCover } from './styles';
+import { SpotifyApiContext } from 'react-spotify-api';
+import Cookies from 'js-cookie';
+
+import { SpotifyAuth, Scopes } from 'react-spotify-auth';
+import 'react-spotify-auth/dist/index.css';
 
 export const Timeline = () => {
   // TODO remove this once hooked up to spotify
   const sampleData = require('../sample_saved_albums.json');
   const sampleItems = sampleData.items;
+
+  const [spotifyAuthToken, setSpotifyAuthToken] = useState();
+
+  useEffect(() => {
+    setSpotifyAuthToken(Cookies.get('spotifyAuthToken'));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [Cookies.get('spotifyAuthToken')]);
 
   const addedDateAt = index => new Date(sampleItems.at(index).added_at);
 
@@ -104,5 +117,27 @@ export const Timeline = () => {
     return timelineDays;
   };
 
-  return <TimelineContainer>{renderTimeline()}</TimelineContainer>;
+  return spotifyAuthToken ? (
+    <SpotifyApiContext.Provider value={spotifyAuthToken}>
+      {/* Your Spotify Code here */}
+      {/* TODO remove <p> and style logout button */}
+      <p>You are authorized with token: {spotifyAuthToken}</p>
+      <button
+        onClick={() => {
+          Cookies.remove('spotifyAuthToken');
+          window.location = '/';
+        }}
+      >
+        Logout
+      </button>
+      <TimelineContainer>{renderTimeline()}</TimelineContainer>
+    </SpotifyApiContext.Provider>
+  ) : (
+    // Display the login page
+    <SpotifyAuth
+      redirectUri='http://localhost:3000/callback'
+      clientID='454b032f839c4ce7adccd951bcd5163f'
+      scopes={[Scopes.userLibraryRead]} // either style will work
+    />
+  );
 };
