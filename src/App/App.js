@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { SpotifyApiContext, UserAlbums } from 'react-spotify-api';
 import { SpotifyAuth, Scopes } from 'react-spotify-auth';
 import { Timeline } from '../Timeline';
-import { LogoutButton } from './styles';
+import { HomePageContent, HomePageText, LogoutButton } from './styles';
 import Cookies from 'js-cookie';
 import 'react-spotify-auth/dist/index.css';
 
@@ -15,6 +15,8 @@ export const App = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [Cookies.get('spotifyAuthToken')]);
 
+  // TODO abstract this ternary to resolve to 2 distinct components (ex. TimelineDisplay and HomePage respectively)
+  // TODO then, once that is done, can move the styling shared between logout button and timeline to their parent component (ex. padding/margin)
   return spotifyAuthToken ? (
     <SpotifyApiContext.Provider value={spotifyAuthToken}>
       <LogoutButton
@@ -30,10 +32,22 @@ export const App = () => {
   ) : (
     // Display the login page
     // TODO add more content to this page
-    <SpotifyAuth
-      redirectUri='http://localhost:3000/' // TODO fix this url to not be localhost once deploying
-      clientID='454b032f839c4ce7adccd951bcd5163f'
-      scopes={[Scopes.userLibraryRead]}
-    />
+    <HomePageContent>
+      <HomePageText>
+        {/* TODO add real styling to these p's and b's, and add more text to description, etc.*/}
+        <p>
+          <b>Spotify Album Timeline</b>
+        </p>
+        <p>
+          Login to see a timeline of all the albums you have saved to Spotify, including both the album's release date
+          and the date that you added it.
+        </p>
+      </HomePageText>
+      <SpotifyAuth
+        redirectUri='http://localhost:3000/' // TODO fix this url to not be localhost once deploying
+        clientID='454b032f839c4ce7adccd951bcd5163f'
+        scopes={[Scopes.userLibraryRead]}
+      />
+    </HomePageContent>
   );
 };
