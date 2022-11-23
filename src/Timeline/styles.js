@@ -3,6 +3,7 @@ import { styled } from '@stitches/react';
 export const TimelineContainer = styled('div', {
   display: 'flex',
   flexDirection: 'column',
+  marginLeft: '50px',
 });
 
 export const NewMonth = styled('b', {
