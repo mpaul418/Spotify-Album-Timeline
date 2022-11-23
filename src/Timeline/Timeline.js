@@ -24,6 +24,7 @@ const isLastDayOfMonth = date => {
   return date.getDate() === new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
 };
 
+// TODO do a pass over everything in here to see if any logic can be simplified / moved out
 export const Timeline = ({ data, loading, error, loadMoreData }) => {
   const [sentryRef] = useInfiniteScroll({
     loading,
@@ -34,8 +35,8 @@ export const Timeline = ({ data, loading, error, loadMoreData }) => {
   });
 
   if (!data) {
-    // TODO improve this
-    return <p>Temp - loading...</p>;
+    // TODO improve this - loading spinner + styling
+    return <p>Loading...</p>;
   }
 
   const { items, next } = data;
@@ -111,7 +112,7 @@ export const Timeline = ({ data, loading, error, loadMoreData }) => {
   return (
     <TimelineContainer>
       {timelineDays}
-      {error && <p>There was an error :(</p>} {/* TODO Needs styling */}
+      {error && <p>There was an error D:</p>} {/* TODO Needs styling */}
       {(loading || next) && <p ref={sentryRef}>Loading...</p>}{' '}
       {/* TODO Infinite loader needs styling and also logic changes: what to do if there is an error? if all data is loaded (no data.next)? */}
     </TimelineContainer>
