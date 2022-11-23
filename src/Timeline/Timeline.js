@@ -113,8 +113,7 @@ export const Timeline = ({ data, loading, error, loadMoreData }) => {
     <TimelineContainer>
       {timelineDays}
       {error && <p>There was an error D:</p>} {/* TODO Needs styling */}
-      {(loading || next) && <p ref={sentryRef}>Loading...</p>}{' '}
-      {/* TODO Infinite loader needs styling and also logic changes: what to do if there is an error? if all data is loaded (no data.next)? */}
+      {!error && (loading || next) && <p ref={sentryRef}>Loading...</p>} {/* TODO Needs styling - loading spinner */}
     </TimelineContainer>
   );
 };
