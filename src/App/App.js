@@ -7,6 +7,8 @@ import Cookies from 'js-cookie';
 import 'react-spotify-auth/dist/index.css';
 
 export const App = () => {
+  const redirectUri =
+    process.env.NODE_ENV === 'production' ? 'https://urchin-app-56urh.ondigitalocean.app/' : 'http://localhost:3000/'; // TODO change prod url
   const [spotifyAuthToken, setSpotifyAuthToken] = useState();
 
   useEffect(() => {
@@ -42,7 +44,7 @@ export const App = () => {
       </HomePageText>
       <SpotifyAuth
         // TODO figure out how to not have access token in URL
-        redirectUri={process.env.REDIRECT_URI}
+        redirectUri={redirectUri}
         clientID='454b032f839c4ce7adccd951bcd5163f'
         scopes={[Scopes.userLibraryRead]}
       />
