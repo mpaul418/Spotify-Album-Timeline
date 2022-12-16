@@ -13,6 +13,7 @@ export const HomePageText = styled('div', {
   flexDirection: 'column',
   justifyContent: 'center',
   alignItems: 'center',
+  fontFamily: 'Gotham, Arial, Helvetica, sans-serif',
   maxWidth: 350,
   minWidth: 130,
 });

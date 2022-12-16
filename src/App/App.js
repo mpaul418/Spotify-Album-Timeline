@@ -7,7 +7,7 @@ import Cookies from 'js-cookie';
 import 'react-spotify-auth/dist/index.css';
 
 export const App = () => {
-  // TODO add env detection to determine redirect url (ex. if env === 'dev', localhost, otherwise, server location)
+  const redirectUri = process.env.NODE_ENV === 'production' ? 'https://TODO' : 'http://localhost:3000/';
   const [spotifyAuthToken, setSpotifyAuthToken] = useState();
 
   useEffect(() => {
@@ -31,20 +31,18 @@ export const App = () => {
     </SpotifyApiContext.Provider>
   ) : (
     // Display the login page
-    // TODO add more content to this page
     <HomePageContent>
       <HomePageText>
-        {/* TODO add real styling to these p's and b's, and add more text to description, etc.*/}
         <p>
           <b>Spotify Album Timeline</b>
         </p>
-        <p>
+        <p style={{ marginTop: 0 }}>
           Login to see a timeline of all the albums you have saved to Spotify, including both the album's release date
           and the date that you added it.
         </p>
       </HomePageText>
       <SpotifyAuth
-        redirectUri='http://localhost:3000/' // TODO fix this url to not be localhost once deploying
+        redirectUri={redirectUri}
         clientID='454b032f839c4ce7adccd951bcd5163f'
         scopes={[Scopes.userLibraryRead]}
       />
