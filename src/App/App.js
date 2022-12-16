@@ -7,9 +7,7 @@ import Cookies from 'js-cookie';
 import 'react-spotify-auth/dist/index.css';
 
 export const App = () => {
-  const redirectUri =
-    process.env.NODE_ENV === 'production' ? 'https://urchin-app-56urh.ondigitalocean.app/' : 'http://localhost:3000/'; // TODO change prod url
-  console.log('env: ', process.env);
+  const redirectUri = process.env.NODE_ENV === 'production' ? process.env.REDIRECT_URI : 'http://localhost:3000/';
   const [spotifyAuthToken, setSpotifyAuthToken] = useState();
 
   useEffect(() => {
