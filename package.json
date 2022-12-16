@@ -15,8 +15,8 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "local": "react-scripts start",
-    "build": "NODE_ENV=production react-scripts build",
+    "local": "REDIRECT_URI=http://localhost:3000/ react-scripts start",
+    "build": "NODE_ENV=production REDIRECT_URI=$REDIRECT_URI react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
