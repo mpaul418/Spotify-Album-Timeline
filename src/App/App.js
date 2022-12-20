@@ -11,6 +11,10 @@ export const App = () => {
 
   useEffect(() => {
     setSpotifyAuthToken(Cookies.get('spotifyAuthToken'));
+    // Quick and dirty fix for access_token showing in URL - doesn't actually get rid of it, but redirects when it happens
+    if (window.location.href.indexOf('access_token') > -1) {
+      window.location = '/';
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [Cookies.get('spotifyAuthToken')]);
 
