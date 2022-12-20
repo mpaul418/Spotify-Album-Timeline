@@ -18,9 +18,7 @@ export const App = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [Cookies.get('spotifyAuthToken')]);
 
-  // TODO abstract this ternary to resolve to 2 distinct components (ex. TimelineDisplay and HomePage respectively)
-  // TODO then, once that is done, can move the styling shared between logout button and timeline to their parent component (ex. padding/margin)
-  return spotifyAuthToken ? (
+  const TimelineDisplay = () => (
     <SpotifyApiContext.Provider value={spotifyAuthToken}>
       <LogoutButton
         onClick={() => {
@@ -32,8 +30,9 @@ export const App = () => {
       </LogoutButton>
       <UserAlbums options={{ limit: 50 }}>{userAlbumProps => <Timeline {...userAlbumProps} />}</UserAlbums>
     </SpotifyApiContext.Provider>
-  ) : (
-    // Display the login page
+  );
+
+  const HomePage = () => (
     <HomePageContent>
       <HomePageText>
         <p>
@@ -45,11 +44,12 @@ export const App = () => {
         </p>
       </HomePageText>
       <SpotifyAuth
-        // TODO figure out how to not have access token in URL
         redirectUri={window.location.href}
         clientID='454b032f839c4ce7adccd951bcd5163f'
         scopes={[Scopes.userLibraryRead]}
       />
     </HomePageContent>
   );
+
+  return spotifyAuthToken ? <TimelineDisplay /> : <HomePage />;
 };

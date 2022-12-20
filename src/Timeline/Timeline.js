@@ -24,7 +24,6 @@ const isLastDayOfMonth = date => {
   return date.getDate() === new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
 };
 
-// TODO do a pass over everything in here to see if any logic can be simplified / moved out
 export const Timeline = ({ data, loading, error, loadMoreData }) => {
   const [sentryRef] = useInfiniteScroll({
     loading,
@@ -35,7 +34,6 @@ export const Timeline = ({ data, loading, error, loadMoreData }) => {
   });
 
   if (!data) {
-    // TODO improve this - loading spinner + styling
     return <p>Loading...</p>;
   }
 
@@ -112,8 +110,8 @@ export const Timeline = ({ data, loading, error, loadMoreData }) => {
   return (
     <TimelineContainer>
       {timelineDays}
-      {error && <p>There was an error D:</p>} {/* TODO Needs styling */}
-      {!error && (loading || next) && <p ref={sentryRef}>Loading...</p>} {/* TODO Needs styling - loading spinner */}
+      {error && <p>There was an error D:</p>}
+      {!error && (loading || next) && <p ref={sentryRef}>Loading...</p>}
     </TimelineContainer>
   );
 };
