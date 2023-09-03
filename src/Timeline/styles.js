@@ -69,3 +69,26 @@ export const AlbumCover = styled('img', {
   height: 100,
   paddingLeft: 15,
 });
+
+export const ListenOnSpotifyButton = styled('button', {
+  backgroundColor: '#1db954',
+  color: '#fff',
+  cursor: 'pointer',
+  marginTop: '8px',
+  padding: '0.25rem 0.5rem',
+  fontFamily: 'Rubik, Gotham, Arial, Helvetica, sans-serif',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  minHeight: '24px',
+  width: '100%',
+  border: 'none',
+  borderRadius: '0.2rem',
+});
+
+export const SpotifyLogo = styled('img', {
+  height: '50px',
+  width: '167px',
+  paddingLeft: '16px',
+  paddingBottom: '8px',
+});

@@ -5,7 +5,7 @@ import { Timeline } from '../Timeline';
 import { HomePageContent, HomePageText, Footer, FooterImage, FooterButton, LogoutButton } from './styles';
 import Cookies from 'js-cookie';
 import 'react-spotify-auth/dist/index.css';
-import githubLogo from './github-mark-white.png';
+import githubLogo from '../images/github-mark-white.png';
 
 export const App = () => {
   const [spotifyAuthToken, setSpotifyAuthToken] = useState();
@@ -38,7 +38,7 @@ export const App = () => {
       <HomePageContent>
         <HomePageText>
           <p>
-            <b>Spotify Album Timeline</b>
+            <b>Album Timeline for Spotify</b>
           </p>
           <p style={{ marginTop: 0 }}>
             Login to see a timeline of all the albums you have saved to Spotify, including both the album's release date

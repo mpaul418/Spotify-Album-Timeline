@@ -1,4 +1,4 @@
-# Spotify Album Timeline
+# Album Timeline for Spotify
 
 Website to display a timeline of when a user saved albums to their Spotify.
 
